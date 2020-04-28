@@ -94,6 +94,7 @@ public class HttpRequest implements HttpServletRequest {
    * particular request are parsed and stored here, they are not modified.
    * Therefore, application level access to the parameters need not be
    * synchronized.
+   * 一个特殊的HashMap，程序员不可以修改其中的值
    */
   protected ParameterMap parameters = null;
 
@@ -134,6 +135,7 @@ public class HttpRequest implements HttpServletRequest {
    * Parse the parameters of this request, if it has not already occurred.
    * If parameters are present in both the query string and the request
    * content, they are merged.
+   * 解析参数
    */
   protected void parseParameters() {
     if (parsed)

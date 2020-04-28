@@ -50,6 +50,7 @@ public class HttpServer1 {
         input = socket.getInputStream();
         output = socket.getOutputStream();
 
+		// 每来一个请求都创建一个request和response
         // create Request object and parse
         Request request = new Request(input);
         request.parse();
@@ -62,6 +63,7 @@ public class HttpServer1 {
         // a request for a servlet begins with "/servlet/"
         if (request.getUri().startsWith("/servlet/")) {    // servlet 资源
           ServletProcessor1 processor = new ServletProcessor1();
+		  // 将request和response都交给一个具体的servlet处理器处理
           processor.process(request, response);
         }
         else {         //  静态资源

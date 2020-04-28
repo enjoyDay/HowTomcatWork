@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 /**
  * A subclass of PrintWriter that automatically flushes each time
  * a print() or println() method is called.
+ * 这个类继承PrintWriter,所有的方法实现了自动刷新，因为每个方法都调用了父类的flush()方法
  */
 
 public class ResponseWriter extends PrintWriter {

@@ -31,6 +31,8 @@ public class Request {
     uri = parseUri(request.toString());
   }
 
+  // 这里这样解析uri，是根据HTTP的请求格式解析的
+  // HTTP 请求行格式：请求方法 URI http版本号
   private String parseUri(String requestString) {
     int index1, index2;
     index1 = requestString.indexOf(' ');

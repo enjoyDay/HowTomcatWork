@@ -11,7 +11,7 @@ import org.apache.catalina.util.StringManager;
  *
  *
  * @author <a href="mailto:remm@apache.org">Remy Maucherat</a>
- * @deprecated
+ * @deprecated 用于获取请求行和请求头信息
  */
 public class SocketInputStream extends InputStream {
 

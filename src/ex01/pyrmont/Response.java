@@ -30,6 +30,9 @@ public class Response {
       File file = new File(HttpServer.WEB_ROOT, request.getUri());
       if (file.exists()) {
         fis = new FileInputStream(file);
+		// HTTP响应一般包含：http版本号 状态码 描述
+		//					请求体
+		//					内容
         String head="HTTP/1.1 200 OK\r\n" +  // 状态码必须设置
                 "Content-Type: text/html\r\n" + // 类型必须设置
                 "Content-Length: \r\n" + // 大小可以不一定设置

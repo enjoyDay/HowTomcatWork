@@ -43,6 +43,7 @@ public class HttpProcessor {
     SocketInputStream input = null;
     OutputStream output = null;
     try {
+	  // 用SocketInputStream封装InputStream，用于获取请求行和请求头，2048用来指明缓冲区大小
       input = new SocketInputStream(socket.getInputStream(), 2048);
       output = socket.getOutputStream();
 
@@ -55,7 +56,10 @@ public class HttpProcessor {
 
       response.setHeader("Server", "Pyrmont Servlet Container");
 
+	  // 内部主要调用SocketInputStream两个方法来解析请求行和请求头
+	  // 解析请求行
       parseRequest(input, output);
+	  // 解析请求头
       parseHeaders(input);
 
       //check if this is a request for a servlet or a static resource
@@ -110,6 +114,7 @@ public class HttpProcessor {
       request.addHeader(name, value);
       // do something for some headers, ignore others.
       if (name.equals("cookie")) {
+		// 用RequestUtil解析cookie，返回cookie数组
         Cookie cookies[] = RequestUtil.parseCookieHeader(value);
         for (int i = 0; i < cookies.length; i++) {
           if (cookies[i].getName().equals("jsessionid")) {
@@ -145,6 +150,7 @@ public class HttpProcessor {
     throws IOException, ServletException {
 
     // Parse the incoming request line
+	// 使用SocketInputStream对象中的信息填充HttpRequestLine实例
     input.readRequestLine(requestLine);
     String method =
       new String(requestLine.method, 0, requestLine.methodEnd);
@@ -234,6 +240,7 @@ public class HttpProcessor {
    * are present), return <code>null</code> instead.
    *
    * @param path Path to be normalized
+   * 用来修改正URI
    */
   protected String normalize(String path) {
     if (path == null)
