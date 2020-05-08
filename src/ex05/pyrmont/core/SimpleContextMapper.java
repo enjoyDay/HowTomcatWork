@@ -38,8 +38,8 @@ public class SimpleContextMapper implements Mapper {
 
   /**
    *
-   * 通过 url 找到对应的 Servlet
-   * 找到对应的Servlet的Wrapper
+   * 通过 url 找到对应的 Servlet的name
+   * 找到对应的Servlet的name再找到Wrapper
    * Return the child Container that should be used to process this Request,
    * based upon its characteristics.  If no such child Container can be
    * identified, return <code>null</code> instead.

@@ -82,6 +82,7 @@ public final class HttpConnector
 
     /**
      * The set of processors that have ever been created.
+	 * 已经创建的处理器的栈
      */
     private Vector created = new Vector();
 
@@ -149,7 +150,7 @@ public final class HttpConnector
 
 
     /**
-     * 使用java.util.Stack 存储 processor . 提高效率
+     * 使用java.util.Stack 存储 processor . 提高效率，（已创建但当前未用于处理请求的一组处理器）
      * The set of processors that have been created but are not currently
      * being used to process a request.
      */
@@ -238,7 +239,7 @@ public final class HttpConnector
 
 
     /**
-     * The thread synchronization object. 锁
+     * The thread synchronization object. 锁，一个线程同步对象，也就是锁
      */
     private Object threadSync = new Object();
 
@@ -860,6 +861,7 @@ public final class HttpConnector
     /**
      * Create and return a new processor suitable for processing HTTP
      * requests and returning the corresponding responses.
+	 * 在创建处理器的时候就已经调用生命周期的start()方法,这个时候已经开始运行处理器了！
      */
     private HttpProcessor newProcessor() {
 
@@ -895,6 +897,7 @@ public final class HttpConnector
      *                                       the certificate (SSL only)
      * @exception KeyManagementException     problem in the key management
      *                                       layer (SSL only)
+	 * 在初始化的时候调用open
      */
     private ServerSocket open()
     throws IOException, KeyStoreException, NoSuchAlgorithmException,
@@ -943,6 +946,7 @@ public final class HttpConnector
     /**
      * The background thread that listens for incoming TCP/IP connections and
      * hands them off to an appropriate processor.
+	 * 守护线程监听请求，并使用合适的处理器处理这个请求
      */
     public void run() {
         // Loop until we receive a shutdown command
@@ -1041,6 +1045,7 @@ public final class HttpConnector
 
         thread = new Thread(this, threadName);
         thread.setDaemon(true); //Daemon 守护神
+		// 因为这个类实现了Runnable，所有自动执行run方法
         thread.start();
 
     }
@@ -1104,6 +1109,7 @@ public final class HttpConnector
 
     /**
      * Initialize this connector (create ServerSocket here!)
+	 * 先初始化，主要就是创建serverSocket
      */
     public void initialize()
     throws LifecycleException {
@@ -1116,6 +1122,7 @@ public final class HttpConnector
 
         // Establish a server socket on the specified port
         try {
+			// 创建一个ServerSocket实例
             serverSocket = open();
         } catch (IOException ioe) {
             log("httpConnector, io problem: ", ioe);
@@ -1156,7 +1163,7 @@ public final class HttpConnector
             throw new LifecycleException
                 (sm.getString("httpConnector.alreadyStarted"));
         threadName = "HttpConnector[" + port + "]";
-        lifecycle.fireLifecycleEvent(START_EVENT, null); // 触发事件
+        lifecycle.fireLifecycleEvent(START_EVENT, null); // 触发事件，感觉这个地方就是调用一个接口方法，需要监听的地方才。。。
         started = true;
 
         // Start our background thread 开启后台线程
@@ -1167,6 +1174,7 @@ public final class HttpConnector
             if ((maxProcessors > 0) && (curProcessors >= maxProcessors))
                 break;
             HttpProcessor processor = newProcessor();
+			// 将当前创建的处理器放入processors中，这个变量表示已创建但还没处理request的处理器
             recycle(processor);
         }
 

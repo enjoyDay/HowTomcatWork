@@ -172,6 +172,7 @@ public class WebappClassLoader
      * components that have been integrated into the JDK for later versions,
      * but where the corresponding JAR files are required to run on
      * earlier versions.
+	 * 不允许载入这些类
      */
     private static final String[] triggers = {
         "javax.servlet.Servlet"                     // Servlet API
@@ -181,6 +182,7 @@ public class WebappClassLoader
     /**
      * Set of package names which are not allowed to be loaded from a webapp
      * class loader without delegating first.
+	 * 不允许载入这些包下面的类
      */
     private static final String[] packageTriggers = {
         "javax",                                     // Java extensions

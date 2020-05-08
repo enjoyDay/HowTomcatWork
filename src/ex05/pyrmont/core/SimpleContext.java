@@ -39,6 +39,7 @@ import org.apache.catalina.util.CharsetMapper;
 public class SimpleContext implements Context, Pipeline {
 
   public SimpleContext() {
+	// 容器Context管道中的基础阀
     pipeline.setBasic(new SimpleContextValve());
   }
 
@@ -555,6 +556,7 @@ public class SimpleContext implements Context, Pipeline {
   }
 
   public void addChild(Container child) {
+	// 通过在这设置子容器的父容器，这样子容器就可以调用父容器中属性，比如类加载器
     child.setParent((Container) this);
     children.put(child.getName(), child);
   }
@@ -626,11 +628,13 @@ public class SimpleContext implements Context, Pipeline {
     //this method is taken from the map method in org.apache.cataline.core.ContainerBase
     //the findMapper method always returns the default mapper, if any, regardless the
     //request's protocol
+	// 根据协议查找到一个具体的映射器
     Mapper mapper = findMapper(request.getRequest().getProtocol());
     if (mapper == null)
       return (null);
 
     // Use this Mapper to perform this mapping
+	// 再调用映射器来根据请求路径查找到wrapper容器
     return (mapper.map(request, update));
   }
 

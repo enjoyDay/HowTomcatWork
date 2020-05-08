@@ -93,7 +93,7 @@ public class SimpleWrapper implements Wrapper, Pipeline {
       throw new ServletException("Failed to instantiate servlet");
     }
 
-    // Call the initialization method of this servlet
+    // Call the initialization method of this servlet，在第一次创建servlet之后，立即调用init方法
     try {
       servlet.init(null);
     }

@@ -87,7 +87,7 @@ public final class LifecycleSupport {
 
     /**
      * Construct a new LifecycleSupport object associated with the specified
-     * Lifecycle component.
+     * Lifecycle component. 生命周期组件
      *
      * @param lifecycle The Lifecycle component that will be the source
      *  of events that we fire

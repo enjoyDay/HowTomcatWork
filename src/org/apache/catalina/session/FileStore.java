@@ -243,7 +243,7 @@ public final class FileStore
     /**
      * Return an array containing the session identifiers of all Sessions
      * currently saved in this Store.  If there are no such Sessions, a
-     * zero-length array is returned.
+     * zero-length array is returned. 文件名使用session对象的标识符再加上一个后缀.session构成
      *
      * @exception IOException if an input/output error occurred
      */
