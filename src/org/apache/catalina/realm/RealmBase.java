@@ -569,6 +569,7 @@ public abstract class RealmBase
      *
      * @param credentials Password or other credentials to use in
      *  authenticating this username
+	 * 对密码进行加密，默认不加密，直接返回
      */
     protected String digest(String credentials)  {
 
@@ -589,7 +590,7 @@ public abstract class RealmBase
         }
 
     }
-
+	// md默认是null
     protected boolean hasMessageDigest() {
         return !(md == null);
     }

@@ -120,6 +120,7 @@ import org.apache.catalina.valves.ValveBase;
  *
  * @author Craig R. McClanahan
  * @version $Revision: 1.33 $ $Date: 2002/08/15 17:42:57 $
+ * 验证器，同时也是一个阀
  */
 
 
