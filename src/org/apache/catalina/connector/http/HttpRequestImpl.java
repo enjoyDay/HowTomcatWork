@@ -55,7 +55,7 @@ final class HttpRequestImpl
 
 
     /**
-     * Headers pool.
+     * Headers pool. 请求头池
      */
     protected HttpHeader[] headerPool = new HttpHeader[INITIAL_POOL_SIZE];
 

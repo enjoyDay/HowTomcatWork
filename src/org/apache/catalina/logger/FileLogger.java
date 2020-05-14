@@ -276,6 +276,7 @@ public class FileLogger
         String tsDate = tsString.substring(0, 10);
 
         // If the date has changed, switch log files
+		// 这种写法在创建单例的时候，也会有，两个if，中间加锁
         if (!date.equals(tsDate)) {
             synchronized (this) {
                 if (!date.equals(tsDate)) {
@@ -289,8 +290,10 @@ public class FileLogger
         // Log this message, timestamped if necessary
         if (writer != null) {
             if (timestamp) {
+				// 如果带时间，输出的时候带上时间
                 writer.println(tsString + " " + msg);
             } else {
+				// 否则不带事件。默认timestamp是false
                 writer.println(msg);
             }
         }
@@ -391,6 +394,7 @@ public class FileLogger
         if (started)
             throw new LifecycleException
                 (sm.getString("fileLogger.alreadyStarted"));
+		// 只触发开始事件
         lifecycle.fireLifecycleEvent(START_EVENT, null);
         started = true;
 

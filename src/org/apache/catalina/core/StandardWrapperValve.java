@@ -134,6 +134,7 @@ final class StandardWrapperValve
         // Allocate a servlet instance to process this request
         try {
             if (!unavailable) {
+				// 获取servlet
                 servlet = wrapper.allocate();
             }
         } catch (ServletException e) {
@@ -168,6 +169,7 @@ final class StandardWrapperValve
         }
 
         // Create the filter chain for this request
+		// 创建过滤器链
         ApplicationFilterChain filterChain =
             createFilterChain(request, servlet);
 
@@ -293,6 +295,7 @@ final class StandardWrapperValve
 
         // Acquire the filter mappings for this Context
         StandardContext context = (StandardContext) wrapper.getParent();
+		// 从context容器上获取过滤器映射。
         FilterMap filterMaps[] = context.findFilterMaps();
 
         // If there are no filter mappings, we are done

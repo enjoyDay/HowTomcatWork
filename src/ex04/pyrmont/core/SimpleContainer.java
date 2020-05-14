@@ -26,7 +26,7 @@ import org.apache.catalina.Response;
 /**
  * 简单的容器
  *      处理Request，Response
- *
+ * 实现标准接口Container
  *
  */
 public class SimpleContainer implements Container {
@@ -155,6 +155,9 @@ public class SimpleContainer implements Container {
     }
     Class myClass = null;
     try {
+	  // 在容器内根据servletName来加载自定义servlet
+	  // 这个类加载器器是使用的URLClassLoader，加载的地址是指定的webRoot目录下的类
+	  // 这里为什么不用new的方式来创建对象呢？因为这里只给了一个类名，在运行过程中JVM并不知道类的实际位置
       myClass = loader.loadClass(servletName);
     }
     catch (ClassNotFoundException e) {

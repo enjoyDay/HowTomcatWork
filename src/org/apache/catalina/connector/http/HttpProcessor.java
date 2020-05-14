@@ -284,11 +284,16 @@ final class HttpProcessor
      * must assign it to our own thread so that multiple simultaneous
      * requests can be handled.
      *
-     * @param socket TCP socket to process
+     * @param socket TCP socket to process 这是一个异步实现
      */
     synchronized void assign(Socket socket) {
 
         // Wait for the Processor to get the previous Socket
+		// 加上下面这个循环，会对同一个处理器assign多个socket时，如果前一个
+		// socket没处理完毕，会一直在这等待
+		// 注意：assign和await不是在一个线程中，assign是在HttpConnector的run方法中被调用，
+		// 属于连接器线程，而await方法是在processor中被调用，属于“处理器线程”。
+		// 两个线程之间的通知，通过available布尔变量和wait、notifyAll来进行通知
         while (available) {
             try {
                 wait();
@@ -298,6 +303,8 @@ final class HttpProcessor
 
         // Store the newly available Socket and notify our thread
         this.socket = socket;
+		// 这里设置true后，如果处理器处理完这个socket后，没有请求过来，还会进行阻塞
+		// 直到assign中唤醒线程，然后再执行
         available = true;
         notifyAll();
 
@@ -317,6 +324,7 @@ final class HttpProcessor
     private synchronized Socket await() {
 
         // Wait for the Connector to provide a new Socket
+		// 一直等待，直到assign中唤醒线程，然后再执行
         while (!available) {
             try {
                 wait();
@@ -325,8 +333,11 @@ final class HttpProcessor
         }
 
         // Notify the Connector that we have received this Socket
+		// 使用局部变量可以在当前Socket对象处理完之前，继续接收下一个socket
         Socket socket = this.socket;
         available = false;
+		// 这里又一次唤醒线程，是因为有可能下一个socket已经过来，但是available还没设置为false，即还是true，此时assign会阻塞，调用这个
+		// 会唤醒assign的连接器线程
         notifyAll();
 
         if ((debug >= 1) && (socket != null))
@@ -646,6 +657,7 @@ final class HttpProcessor
      *
      * @exception IOException if an input/output error occurs
      * @exception ServletException if a parsing error occurs
+	 * 解析请求
      */
     private void parseRequest(SocketInputStream input, OutputStream output)
         throws IOException, ServletException {
@@ -859,7 +871,7 @@ final class HttpProcessor
     /**
      * Send a confirmation that a request has been processed when pipelining.
      * HTTP/1.1 100 Continue is sent back to the client.
-     *
+     * 发送的字符串是固定的："HTTP/1.1 100 Continue\r\n\r\n"
      * @param output Socket output stream
      */
     private void ackRequest(OutputStream output)
@@ -874,17 +886,20 @@ final class HttpProcessor
      * to this Processor.  Any exceptions that occur during processing must be
      * swallowed and dealt with.
      *
-     *
+     *	每来一个socket，都会在处理器线程中处理，process方法是主要的处理方法
      * @param socket The socket on which we are connected to the client
      */
     private void process(Socket socket) {
+		// 处理过程中是否有错误
         boolean ok = true;
+		// 是否应该调用reponse的finishResponse()
         boolean finishResponse = true;
         SocketInputStream input = null;
         OutputStream output = null;
 
         // Construct and initialize the objects we will need
         try {
+			// SocketInputStream包装套接字输入流
             input = new SocketInputStream(socket.getInputStream(),
                                           connector.getBufferSize());
         } catch (Exception e) {
@@ -892,12 +907,14 @@ final class HttpProcessor
             ok = false;
         }
 
+		// 是否支持持久链接
         keepAlive = true;
-
+		// stopped表示是否被连接器终止
         while (!stopped && ok && keepAlive) {
 
             finishResponse = true;
 
+			// request和response在创建处理器时就创建好了
             try {
                 request.setStream(input);
                 request.setResponse(response);
@@ -915,11 +932,13 @@ final class HttpProcessor
             // Parse the incoming request
             try {
                 if (ok) {
-
+					// 解析链接
                     parseConnection(socket);
+					// 解析请求
                     parseRequest(input, output);
                     if (!request.getRequest().getProtocol()
                         .startsWith("HTTP/0"))
+						// 解析头
                         parseHeaders(input);
                     if (http11) {
                         // Sending a request acknowledge back to the client if
@@ -971,6 +990,9 @@ final class HttpProcessor
                 ((HttpServletResponse) response).setHeader
                     ("Date", FastHttpDateFormat.getCurrentDate());
                 if (ok) {
+					// 这个是重点，找到对应的容器解析这个请求，这个容器这里实现简单的实现，并且在启动的时候已经配置好连接器与容器一对一的关系
+					// 容器内部的原理是根据请求路径中的servletName去指定目录下找到servlet类，并使用这个自定义的类处理请求
+					// 容器内部的类加载器使用的是URLClassLoader
                     connector.getContainer().invoke(request, response); // 找到对应的容器进行处理。
                 }
             } catch (ServletException e) {
@@ -995,7 +1017,7 @@ final class HttpProcessor
                 ok = false;
             }
 
-            // Finish up the handling of the request
+            // Finish up the handling of the request 完整处理这个请求
             if (finishResponse) {
                 try {
                     response.finishResponse();
@@ -1078,12 +1100,19 @@ final class HttpProcessor
         while (!stopped) {
 
             // Wait for the next socket to be assigned，线程阻塞等待。socket
+			// 这个是在createProcessor创建处理器时，并启动线程时，就开始运行，然后运行到这里时
+			// 由于available是false，会一直等待，直到assign赋值时，才notifyAll
+			
+			// 没在连接器接收连接，并且收到一个处理器实例时创建线程的原因，我猜想
+			// 是因为立马创建处理器线程会占用一部分资源，这样会阻塞连接器线程
+			// 所以是在一开始创建连接器对象池的时候，就已经启动线程，并且在阻塞的状态
             Socket socket = await();
             if (socket == null)
                 continue;
 
             // Process the request from this socket
             try {
+				// 负责处理请求的主要方法
                 process(socket);
             } catch (Throwable t) {
                 log("process.invoke", t);

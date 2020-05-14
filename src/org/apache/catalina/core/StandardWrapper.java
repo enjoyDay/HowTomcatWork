@@ -147,8 +147,8 @@ public final class StandardWrapper
     /**
      * The facade associated with this wrapper.
      */
-    private StandardWrapperFacade facade =
-        new StandardWrapperFacade(this);
+		private StandardWrapperFacade facade =
+			new StandardWrapperFacade(this);
 
 
     /**
@@ -916,8 +916,10 @@ System.out.println("after calling setWrapper");
             try {
                 instanceSupport.fireInstanceEvent(InstanceEvent.BEFORE_INIT_EVENT,
                                                   servlet);
+				// 注意。init传入一个servletConfig的外观变量								  
                 servlet.init(facade);
                 // Invoke jspInit on JSP pages
+				// 如果调用的是要给jsp页面，则在这调用service方法，否则不会调用
                 if ((loadOnStartup > 0) && (jspFile != null)) {
                     // Invoking jspInit
                     HttpRequestBase req = new HttpRequestBase();

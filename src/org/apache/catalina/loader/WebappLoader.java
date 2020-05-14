@@ -660,9 +660,12 @@ public class WebappLoader
             }
 
             // Configure our repositories
+			// 设置仓库class在WEB-INF/classes
             setRepositories();
+			
             setClassPath();
 
+		    // 设置访问权限
             setPermissions();
 
             if (classLoader instanceof Lifecycle)
@@ -841,6 +844,7 @@ public class WebappLoader
      */
     private void notifyContext() {
 
+		// WebappContextNotifier是内部类，开启一个新的线程，这样
         WebappContextNotifier notifier = new WebappContextNotifier();
         (new Thread(notifier)).start();
 
@@ -851,7 +855,7 @@ public class WebappLoader
      * Configure associated class loader permissions.
      */
     private void setPermissions() {
-
+		// 如果没有设置安全管理器，则会直接返回
         if (System.getSecurityManager() == null)
             return;
         if (!(container instanceof Context))
@@ -1019,7 +1023,7 @@ public class WebappLoader
         // Setting up the JAR repository (/WEB-INF/lib), if it exists
 
         String libPath = "/WEB-INF/lib";
-
+		// 设置jar包路径在WEB-INF/lib
         classLoader.setJarPath(libPath);
 
         DirContext libDir = null;

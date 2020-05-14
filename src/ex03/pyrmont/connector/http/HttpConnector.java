@@ -38,6 +38,10 @@ public class HttpConnector implements Runnable {
       }
       // Hand this socket off to an HttpProcessor
       HttpProcessor processor = new HttpProcessor(this);
+	  // 将处理器实例放在这里进行调用process方法处理，这样
+	  // 会有一个缺点，每次来一个请求，都要先处理完后才能接着处理下一个请求
+	  // 优化方向：可以每次来一个请求都创建一个线程来进行处理，
+	  // 			看第四章，优化时先创建了一个处理器池。
       processor.process(socket);
     }
   }

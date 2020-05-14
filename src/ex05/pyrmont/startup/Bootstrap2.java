@@ -23,6 +23,7 @@ public final class Bootstrap2 {
          */
         Context context = new SimpleContext();
 
+		// 这里最基本的Wrapper容器中管道中只有一个默认的valve，用来调用serlvet.service
         Wrapper wrapper1 = new SimpleWrapper();
         wrapper1.setName("Primitive");
         wrapper1.setServletClass("PrimitiveServlet");
@@ -37,12 +38,14 @@ public final class Bootstrap2 {
         ((Pipeline) context).addValve(valve1);
         ((Pipeline) context).addValve(valve2);
 
+		// 默认映射器
         Mapper mapper = new SimpleContextMapper();
         mapper.setProtocol("http");
         context.addMapper(mapper);
 
         Loader loader = new SimpleLoader();
         context.setLoader(loader);
+		// 如果想要多个URL对应一个servlet实例类，则可以add多个
         // context.addServletMapping(pattern, name);
         context.addServletMapping("/Primitive", "Primitive");
         context.addServletMapping("/Modern", "Modern");
