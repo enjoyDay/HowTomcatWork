@@ -13,10 +13,12 @@ import org.apache.catalina.realm.GenericPrincipal;
 public class SimpleRealm implements Realm {
 
   public SimpleRealm() {
+	// 在构造函数就创建用户数据库，代码中写死的。
     createUserDatabase();
   }
 
   private Container container;
+  // 保存内存中的角色
   private ArrayList users = new ArrayList();
 
   public Container getContainer() {
